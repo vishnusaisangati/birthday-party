@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Party Results</title>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    .finish-btn{
+    display:inline-block;
+    margin:30px 0 40px 0;
+    padding:12px 30px;
+    background:#ff80ab;
+    color:white;
+    text-decoration:none;
+    border-radius:25px;
+    font-size:18px;
+    font-weight:bold;
+    transition:0.3s ease;
+}
+
+/* hover effect */
+.finish-btn:hover{
+    background:#ff4081;
+    transform:scale(1.08);
+    box-shadow:0 6px 15px rgba(0,0,0,0.2);
+}
+body{
+    font-family: Arial, sans-serif;
+    text-align:center;
+    background: linear-gradient(to right,#ffe4ec,#fff5f7);
+    margin:0;
+}
+
+.header{
+    background:#ff4081;
+    color:white;
+    padding:20px;
+    font-size:28px;
+}
+
+/* chart container */
+.chart-box{
+    width:75%;
+    margin:30px auto;
+}
+
+/* reset button */
+.reset-btn{
+    padding:10px 20px;
+    border:none;
+    background:#ff80ab;
+    color:white;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+/* table */
+table{
+    margin:25px auto;
+    border-collapse:collapse;
+    width:70%;
+    background:white;
+    box-shadow:0 5px 15px rgba(0,0,0,0.15);
+}
+
+th,td{
+    padding:12px;
+    border-bottom:1px solid #ddd;
+}
+
+th{
+    background:#ff80ab;
+    color:white;
+}
+
+img{
+    width:60px;
+}
+
+button{
+    padding:6px 14px;
+    border:none;
+    background:#ff80ab;
+    color:white;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+.tick{
+    color:green;
+    font-size:22px;
+    font-weight:bold;
+}
+
+/* popup overlay */
+.overlay{
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background:rgba(0,0,0,0.35);
+    display:none;
+    justify-content:center;
+    align-items:center;
+}
+
+.popup{
+    background:white;
+    padding:25px 40px;
+    border-radius:12px;
+    font-size:20px;
+    box-shadow:0 5px 20px rgba(0,0,0,0.3);
+}
+</style>
+</head>
+<body>
+
+<div class="header">🎉 Party Results 🎉</div>
+
+<!-- 📊 Chart -->
+<div class="chart-box">
+    <canvas id="cakeChart"></canvas>
+    <br>
+    <button class="reset-btn" onclick="resetVotes()">Reset Chart</button>
+</div>
+
+<h2>Add Extra Items</h2>
+
+<table>
+<tr>
+<th>Pic</th>
+<th>Item</th>
+<th>Select</th>
+</tr>
+
+<tr>
+<td><img src="candle.png"></td>
+<td>Candle</td>
+<td id="candleCell">
+<button onclick="selectItem('candle','candleCell')">Select</button>
+</td>
+</tr>
+
+<tr>
+<td><img src="spray.png"></td>
+<td>Party Spray</td>
+<td id="sprayCell">
+<button onclick="selectItem('spray','sprayCell')">Select</button>
+</td>
+</tr>
+
+<tr>
+<td><img src="popup.png"></td>
+<td>Popup</td>
+<td id="popupCell">
+<button onclick="selectItem('popup','popupCell')">Select</button>
+</td>
+</tr>
+
+</table>
+
+<!-- centered popup -->
+<div class="overlay" id="overlay">
+    <div class="popup">⚠ Budget Overloaded!</div>
+</div>
+
+<script>
+/* ================= CAKE VOTES ================= */
+
+// default votes (ensures zero values)
+let votes = JSON.parse(localStorage.getItem("cakeVotes")) || {
+    "Chocolate Cake": 0,
+    "Black Forest": 0,
+    "Strawberry Cake": 0
+};
+
+// add current vote
+let selectedCake = localStorage.getItem("cakeName");
+if(selectedCake){
+    votes[selectedCake]++;
+    localStorage.setItem("cakeVotes", JSON.stringify(votes));
+}
+
+/* ================= BAR CHART ================= */
+
+new Chart(document.getElementById("cakeChart"), {
+    type: 'bar',
+    data: {
+        labels: Object.keys(votes),
+        datasets: [{
+            data: Object.values(votes),
+            backgroundColor: [
+                "#ffd1dc",   // soft pink
+                "#d0f0fd",   // soft blue
+                "#fff4c2"    // soft yellow
+            ],
+            borderRadius: 12
+        }]
+    },
+    options: {
+        animation: { duration: 1200 },
+        plugins: {
+            legend: { display: false }
+        },
+        scales: {
+            x: {
+                grid: { display: false },
+                ticks: { color:"#555" }
+            },
+            y: {
+                beginAtZero: true,
+                grid: { display: false },
+                ticks: {
+                    stepSize: 1,
+                    color:"#777"
+                }
+            }
+        }
+    }
+});
+
+/* ================= RESET CHART ================= */
+
+function resetVotes(){
+    localStorage.removeItem("cakeVotes");
+    location.reload();
+}
+
+/* ================= ITEM SELECTION ================= */
+
+let selectedItems = [];
+
+function selectItem(item, cellId){
+
+    if(selectedItems.includes(item)) return;
+
+    selectedItems.push(item);
+
+    document.getElementById(cellId).innerHTML =
+        '<span class="tick">✔</span>';
+
+    if(selectedItems.length > 1){
+        showPopup();
+        selectedItems = [];
+        resetTable();
+    }
+}
+
+function showPopup(){
+    let overlay = document.getElementById("overlay");
+    overlay.style.display="flex";
+    setTimeout(()=> overlay.style.display="none", 2000);
+}
+
+function resetTable(){
+    candleCell.innerHTML='<button onclick="selectItem(\'candle\',\'candleCell\')">Select</button>';
+    sprayCell.innerHTML='<button onclick="selectItem(\'spray\',\'sprayCell\')">Select</button>';
+    popupCell.innerHTML='<button onclick="selectItem(\'popup\',\'popupCell\')">Select</button>';
+}
+</script>
+<br><br>
+
+<a href="page5.html" class="finish-btn">Finish</a>
+
+</body>
+</html>

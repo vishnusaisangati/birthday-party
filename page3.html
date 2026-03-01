@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cake Feast</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    text-align:center;
+    background:#fff5f7;
+    margin:0;
+}
+
+h1{
+    background:#ff4081;
+    color:white;
+    padding:20px;
+    margin:0;
+}
+
+/* table styling */
+table{
+    margin:25px auto;
+    border-collapse:collapse;
+    width:80%;
+    background:white;
+    box-shadow:0 5px 15px rgba(0,0,0,0.15);
+}
+
+th, td{
+    padding:12px;
+    border-bottom:1px solid #ddd;
+}
+
+th{
+    background:#ff80ab;
+    color:white;
+}
+
+img{
+    width:70px;
+    height:70px;
+    border-radius:10px;
+}
+
+button{
+    padding:6px 14px;
+    border:none;
+    background:#ff4081;
+    color:white;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#e91e63;
+}
+
+.selected{
+    background:#4CAF50 !important;
+}
+
+.view-btn{
+    margin:25px;
+    padding:12px 25px;
+    font-size:18px;
+    background:#ff4081;
+    color:white;
+    border:none;
+    border-radius:25px;
+    cursor:pointer;
+}
+</style>
+</head>
+<body>
+
+<h1>🎂 Cake Feast 🎂</h1>
+
+<!-- Cake Selection Table -->
+<table id="cakeTable">
+<tr>
+<th>Image</th>
+<th>Cake Name</th>
+<th>Price</th>
+<th>Select</th>
+</tr>
+
+<tr>
+<td><img src="cake1.jpg"></td>
+<td>Chocolate Cake</td>
+<td>₹350</td>
+<td><button onclick="selectCake(this,'Chocolate Cake','₹350','cake1.jpg')">Select</button></td>
+</tr>
+
+<tr>
+<td><img src="cake2.jpg"></td>
+<td>Black Forest</td>
+<td>₹400</td>
+<td><button onclick="selectCake(this,'Black Forest','₹400','cake2.jpg')">Select</button></td>
+</tr>
+
+<tr>
+<td><img src="cake3.jpg"></td>
+<td>Strawberry Cake</td>
+<td>₹350</td>
+<td><button onclick="selectCake(this,'Strawberry Cake','₹350','cake3.jpg')">Select</button></td>
+</tr>
+
+</table>
+
+<!-- Selected Cake Table -->
+<h2>Selected Cake</h2>
+
+<table id="selectedTable">
+<tr>
+<th>Image</th>
+<th>Name</th>
+<th>Price</th>
+</tr>
+<tr id="resultRow">
+<td colspan="3">No cake selected</td>
+</tr>
+</table>
+
+<button class="view-btn" onclick="viewResult()">View Results</button>
+
+<script>
+let selectedData = null;
+
+function selectCake(button, name, price, img){
+
+    // reset all buttons
+    let buttons = document.querySelectorAll("#cakeTable button");
+    buttons.forEach(btn=>{
+        btn.innerText="Select";
+        btn.classList.remove("selected");
+    });
+
+    // mark selected
+    button.innerText="✔";
+    button.classList.add("selected");
+
+    // store selected data
+    selectedData = {name, price, img};
+
+    // show in next table
+    document.getElementById("resultRow").innerHTML =
+    `<td><img src="${img}"></td>
+     <td>${name}</td>
+     <td>${price}</td>`;
+}
+
+function viewResult(){
+    if(!selectedData){
+        alert("Please select a cake first!");
+        return;
+    }
+
+    // save selection
+    localStorage.setItem("cakeName", selectedData.name);
+    localStorage.setItem("cakePrice", selectedData.price);
+    localStorage.setItem("cakeImg", selectedData.img);
+
+    window.location.href="page4.html";
+}
+</script>
+
+</body>
+</html>
